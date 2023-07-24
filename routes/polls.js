@@ -4,6 +4,8 @@ const db = require('../db/connection');
 
 // Route to create a poll
 router.post('/create-poll', (req, res) => {
+   const pollsBaseLink = "http://localhost:3000/"
+
   // query to insert user
   const queryCreatePoll = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
 
@@ -15,6 +17,7 @@ router.post('/create-poll', (req, res) => {
       if (data) {
         let user_id = data.rows[0].id;
         const generateUrl = generateRandomString();
+        const fullLinkUrl = pollsBaseLink + generateUrl;
 
         // query to insert polls after user is created
         const queryTwo = `INSERT INTO polls (title, question, link, users_id) VALUES ( $1, $2, $3, $4 ) RETURNING id`;
@@ -25,9 +28,9 @@ router.post('/create-poll', (req, res) => {
           .then(data => {
 
             if (data) {
-              let optionsArray = ["Dog", "Cat", "Monkey"];
+              const optionsArray = ["Dog", "Cat", "Monkey"];
               // let optionsArray = req.body.options;
-              let poll_id = data.rows[0].id;
+              const poll_id = data.rows[0].id;
 
               // loop through the options array
               for (let i = 0; i < optionsArray.length; i++) {
@@ -40,9 +43,9 @@ router.post('/create-poll', (req, res) => {
                   .then(data => {
                     if (data) {
                       // send email to user
-                      SendEmailToUser();
+                      SendEmailToUser(fullLinkUrl);
 
-                      // render data to page
+                      // render success message to view
                       const templateVars = { successMsg: "Poll created successfully", };
 
                       res.render('Place template view here', templateVars);
@@ -227,7 +230,7 @@ const generateRandomString = () => {
 };
 
 // function to send email
-const SendEmailToUser = () => {
+const SendEmailToUser = (pollLinkUrl) => {
   // implement sending email function here
 };
 
