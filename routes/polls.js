@@ -4,7 +4,7 @@ const db = require('../db/connection');
 
 // Route to create a poll
 router.post('/create-poll', (req, res) => {
-   const pollsBaseLink = "http://localhost:3000/"
+  const pollsBaseLink = "http://localhost:3000/"
 
   // query to insert user
   const queryCreatePoll = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
@@ -12,10 +12,10 @@ router.post('/create-poll', (req, res) => {
   const valuesCreatePoll = [req.body.email];
 
   db.query(queryCreatePoll, valuesCreatePoll)
-    .then(data => {
+    .then(dataone => {
 
-      if (data) {
-        let user_id = data.rows[0].id;
+      if (dataone) {
+        let user_id = dataone.rows[0].id;
         const generateUrl = generateRandomString();
         const fullLinkUrl = pollsBaseLink + generateUrl;
 
@@ -25,12 +25,12 @@ router.post('/create-poll', (req, res) => {
         const valuesTwo = [req.body.title, req.body.question, generateUrl, user_id];
 
         db.query(queryTwo, valuesTwo)
-          .then(data => {
+          .then(datatwo => {
 
-            if (data) {
+            if (datatwo) {
               const optionsArray = ["Dog", "Cat", "Monkey"];
               // let optionsArray = req.body.options;
-              const poll_id = data.rows[0].id;
+              const poll_id = datatwo.rows[0].id;
 
               // loop through the options array
               for (let i = 0; i < optionsArray.length; i++) {
@@ -40,16 +40,9 @@ router.post('/create-poll', (req, res) => {
                 const valuesThree = [poll_id, optionsArray[i]];
 
                 db.query(queryThree, valuesThree)
-                  .then(data => {
-                    if (data) {
-                      // send email to user
-                      SendEmailToUser(fullLinkUrl);
-
-                      // render success message to view
-                      const templateVars = { successMsg: "Poll created successfully", };
-
-                      res.render('Place template view here', templateVars);
-                      return;
+                  .then(datathree => {
+                    if (datathree) {
+                      console.log("inserted to choices table successfully");
                     }
                   })
                   .catch(err => {
@@ -58,6 +51,17 @@ router.post('/create-poll', (req, res) => {
                       .json({ error: err.message });
                   });
               }
+
+              // send email to user
+              SendEmailToUser(fullLinkUrl);
+
+              // render success message to view
+              const templateVars = { successMsg: "Successfully", };
+
+              console.log(templateVars);
+
+              // res.render('Place template view here', templateVars);
+              return;
             }
           })
           .catch(err => {
@@ -89,16 +93,22 @@ router.get("/:id", (req, res) => {
     .then((data) => {
       if (data) {
         // Query to select choices by polls_id
-        const queryStringFour = `
+        const queryStringChoices = `
   SELECT * FROM choices
   WHERE polls_id = $1;
   `;
 
-        const values = [data.rows[0].id];
+        const valuesChoices = [data.rows[0].id];
 
-        db.query(queryStringFour, values)
-          .then((data) => {
-            console.log(data.rows);
+        db.query(queryStringChoices, valuesChoices)
+          .then((dataone) => {
+            // render data and success message to view
+            const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, successMsg: "Successfully" };
+
+            console.log(templateVars);
+
+            // res.render('Place template view here', templateVars);
+            return;
           })
           .catch((err) => {
             console.log(err.message);
@@ -124,11 +134,19 @@ router.post('/post-answer', (req, res) => {
       // Query to insert answer to table
       const queryOne = `INSERT INTO answers (polls_id, users_id, polls_answer) VALUES ( $1, $2, $3 )`;
 
-      const valuesOne = [req.body.polls_id, user_id, req.body.answer];
+      const valuesOne = [req.body.polls_id, user_id, req.body.choice_id];
 
       db.query(queryOne, valuesOne)
-        .then(data => {
-          return "Answer submitted successfully";
+        .then(dataOne => {
+          if (dataOne) {
+            // render data and success message to view
+            const templateVars = { successMsg: "Successfully" };
+
+            console.log(templateVars);
+
+            // res.render('Place template view here', templateVars);
+            return;
+          }
         })
         .catch(err => {
           res
@@ -167,34 +185,24 @@ router.get("/get-results/:id", (req, res) => {
         const values = [data.rows[0].id];
 
         db.query(queryStringFour, values)
-          .then((data) => {
-            if (data) {
-              const pollUrlId = req.params.id;
-
-              const queryString = `
-  SELECT * FROM polls
-  WHERE polls.link = $1;
-  `;
-              const values = [pollUrlId];
-
-              db.query(queryString, values)
-                .then((data) => {
-                  if (data) {
-                  const queryStringAnswers = `
+          .then((dataone) => {
+            if (dataone) {
+              const queryStringAnswers = `
   SELECT * FROM answers
   WHERE polls_id = $1;
   `;
 
-                  const valuesAnswer = [data.rows[0].id];
+              const valuesAnswer = [data.rows[0].id];
 
-                  db.query(queryStringAnswers, valuesAnswer)
-                    .then((data) => {
-                      console.log(data.rows);
-                    })
-                    .catch((err) => {
-                      console.log(err.message);
-                    });
-                  }
+              db.query(queryStringAnswers, valuesAnswer)
+                .then((datatwo) => {
+                  // render data and success message to view
+                  const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, pollAnswers: datatwo.rows, successMsg: "Successful" };
+
+                  console.log(templateVars);
+
+                  // res.render('Place template view here', templateVars);
+                  return;
                 })
                 .catch((err) => {
                   console.log(err.message);
