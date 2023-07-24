@@ -2,52 +2,62 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/connection');
 
+// Route to create a poll
 router.post('/create-poll', (req, res) => {
-  // const baseUrl = 'http://localhost:3000/'
-  const queryOne = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
+  // query to insert user
+  const queryCreatePoll = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
 
-  const valuesOne = [req.body.email];
+  const valuesCreatePoll = [req.body.email];
 
-  db.query(queryOne, valuesOne)
+  db.query(queryCreatePoll, valuesCreatePoll)
     .then(data => {
-      let user_id = data.rows[0].id;
-      const generateUrl = generateRandomString();
 
-      console.log(generateUrl);
+      if (data) {
+        let user_id = data.rows[0].id;
+        const generateUrl = generateRandomString();
 
-      const queryTwo = `INSERT INTO polls (title, question, link, users_id) VALUES ( $1, $2, $3, $4 ) RETURNING id`;
+        // query to insert polls after user is created
+        const queryTwo = `INSERT INTO polls (title, question, link, users_id) VALUES ( $1, $2, $3, $4 ) RETURNING id`;
 
-      const valuesTwo = [req.body.title, req.body.question, generateUrl, user_id];
+        const valuesTwo = [req.body.title, req.body.question, generateUrl, user_id];
 
-      db.query(queryTwo, valuesTwo)
-        .then(data => {
-          let optionsArray = ["Dog", "Cat", "Monkey"];
-          // let optionsArray = req.body.options;
-          let poll_id = data.rows[0].id;
+        db.query(queryTwo, valuesTwo)
+          .then(data => {
 
-          for (let i = 0; i < optionsArray.length; i++) {
-            const queryThree = `INSERT INTO choices (polls_id, polls_options) VALUES ( $1, $2 )`;
+            if (data) {
+              let optionsArray = ["Dog", "Cat", "Monkey"];
+              // let optionsArray = req.body.options;
+              let poll_id = data.rows[0].id;
 
-            const valuesThree = [poll_id, optionsArray[i]];
+              // loop through the options array
+              for (let i = 0; i < optionsArray.length; i++) {
+                // query to insert choices
+                const queryThree = `INSERT INTO choices (polls_id, polls_options) VALUES ( $1, $2 )`;
 
-            db.query(queryThree, valuesThree)
-              .then(data => {
-                if (data) {
-                  return "Inserted Successfully";
-                }
-              })
-              .catch(err => {
-                res
-                  .status(500)
-                  .json({ error: err.message });
-              });
-          }
-        })
-        .catch(err => {
-          res
-            .status(500)
-            .json({ error: err.message });
-        });
+                const valuesThree = [poll_id, optionsArray[i]];
+
+                db.query(queryThree, valuesThree)
+                  .then(data => {
+                    if (data) {
+                      // send email to user
+                      SendEmailToUser();
+                      return "Inserted Successfully";
+                    }
+                  })
+                  .catch(err => {
+                    res
+                      .status(500)
+                      .json({ error: err.message });
+                  });
+              }
+            }
+          })
+          .catch(err => {
+            res
+              .status(500)
+              .json({ error: err.message });
+          });
+      }
     })
     .catch(err => {
       res
@@ -56,9 +66,11 @@ router.post('/create-poll', (req, res) => {
     });
 });
 
+// Route to get polls by id link
 router.get("/:id", (req, res) => {
   const pollUrlId = req.params.id;
 
+  // Query get select by link id
   const queryString = `
   SELECT * FROM polls
   WHERE polls.link = $1;
@@ -67,32 +79,32 @@ router.get("/:id", (req, res) => {
 
   db.query(queryString, values)
     .then((data) => {
-      console.log(data.rows[0]);
-      // return Promise.resolve(result.rows[0]);
-
-      const queryStringFour = `
+      if (data) {
+        // Query to select choices by polls_id
+        const queryStringFour = `
   SELECT * FROM choices
   WHERE polls_id = $1;
   `;
 
-      const values = [data.rows[0].id];
+        const values = [data.rows[0].id];
 
-      db.query(queryStringFour, values)
-        .then((data) => {
-          console.log(data.rows);
-          // return Promise.resolve(result.rows[0]);
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-
+        db.query(queryStringFour, values)
+          .then((data) => {
+            console.log(data.rows);
+          })
+          .catch((err) => {
+            console.log(err.message);
+          });
+      }
     })
     .catch((err) => {
       console.log(err.message);
     });
 });
 
+// Route to post answers
 router.post('/post-answer', (req, res) => {
+  // Query to insert user to table
   const queryOne = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
 
   const valuesOne = [req.body.email];
@@ -101,6 +113,7 @@ router.post('/post-answer', (req, res) => {
     .then(data => {
       let user_id = data.rows[0].id;
 
+      // Query to insert answer to table
       const queryOne = `INSERT INTO answers (polls_id, users_id, polls_answer) VALUES ( $1, $2, $3 )`;
 
       const valuesOne = [req.body.polls_id, user_id, req.body.answer];
@@ -123,9 +136,11 @@ router.post('/post-answer', (req, res) => {
     });
 });
 
+// Route to get results by id
 router.get("/get-results/:id", (req, res) => {
   const pollUrlId = req.params.id;
 
+  // query to select polls by id
   const queryString = `
   SELECT * FROM polls
   WHERE polls.link = $1;
@@ -134,64 +149,61 @@ router.get("/get-results/:id", (req, res) => {
 
   db.query(queryString, values)
     .then((data) => {
-      console.log(data.rows[0]);
-      // return Promise.resolve(result.rows[0]);
 
-      const queryStringFour = `
+      if (data) {
+        const queryStringFour = `
   SELECT * FROM choices
   WHERE polls_id = $1;
   `;
 
-      const values = [data.rows[0].id];
+        const values = [data.rows[0].id];
 
-      db.query(queryStringFour, values)
-        .then((data) => {
-          console.log(data.rows);
-          // return Promise.resolve(result.rows[0]);
-          const pollUrlId = req.params.id;
+        db.query(queryStringFour, values)
+          .then((data) => {
+            if (data) {
+              const pollUrlId = req.params.id;
 
-  const queryString = `
+              const queryString = `
   SELECT * FROM polls
   WHERE polls.link = $1;
   `;
-  const values = [pollUrlId];
+              const values = [pollUrlId];
 
-  db.query(queryString, values)
-    .then((data) => {
-      console.log(data.rows[0]);
-      // return Promise.resolve(result.rows[0]);
-
-      const queryStringAnswers = `
+              db.query(queryString, values)
+                .then((data) => {
+                  if (data) {
+                  const queryStringAnswers = `
   SELECT * FROM answers
   WHERE polls_id = $1;
   `;
 
-      const valuesAnswer = [data.rows[0].id];
+                  const valuesAnswer = [data.rows[0].id];
 
-      db.query(queryStringAnswers, valuesAnswer)
-        .then((data) => {
-          console.log(data.rows);
-          // return Promise.resolve(result.rows[0]);
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-
+                  db.query(queryStringAnswers, valuesAnswer)
+                    .then((data) => {
+                      console.log(data.rows);
+                    })
+                    .catch((err) => {
+                      console.log(err.message);
+                    });
+                  }
+                })
+                .catch((err) => {
+                  console.log(err.message);
+                });
+            }
+          })
+          .catch((err) => {
+            console.log(err.message);
+          });
+      }
     })
     .catch((err) => {
       console.log(err.message);
     });
 });
 
+// function to generate random string
 const generateRandomString = () => {
   let getRandChar = '';
   let randArray = [];
@@ -207,6 +219,11 @@ const generateRandomString = () => {
   }
 
   return getRandChar;
+};
+
+// function to send email
+const SendEmailToUser = () => {
+  // implement sending email function here
 };
 
 module.exports = router;
