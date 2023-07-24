@@ -93,9 +93,103 @@ router.get("/:id", (req, res) => {
 });
 
 router.post('/post-answer', (req, res) => {
-  const queryOne = `INSERT INTO answers (email) VALUES ( $1 ) RETURNING id`;
+  const queryOne = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
 
-  const valuesOne = [req.body.polls_id];
+  const valuesOne = [req.body.email];
+
+  db.query(queryOne, valuesOne)
+    .then(data => {
+      let user_id = data.rows[0].id;
+
+      const queryOne = `INSERT INTO answers (polls_id, users_id, polls_answer) VALUES ( $1, $2, $3 )`;
+
+      const valuesOne = [req.body.polls_id, user_id, req.body.answer];
+
+      db.query(queryOne, valuesOne)
+        .then(data => {
+          return "Answer submitted successfully";
+        })
+        .catch(err => {
+          res
+            .status(500)
+            .json({ error: err.message });
+        });
+
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ error: err.message });
+    });
+});
+
+router.get("/get-results/:id", (req, res) => {
+  const pollUrlId = req.params.id;
+
+  const queryString = `
+  SELECT * FROM polls
+  WHERE polls.link = $1;
+  `;
+  const values = [pollUrlId];
+
+  db.query(queryString, values)
+    .then((data) => {
+      console.log(data.rows[0]);
+      // return Promise.resolve(result.rows[0]);
+
+      const queryStringFour = `
+  SELECT * FROM choices
+  WHERE polls_id = $1;
+  `;
+
+      const values = [data.rows[0].id];
+
+      db.query(queryStringFour, values)
+        .then((data) => {
+          console.log(data.rows);
+          // return Promise.resolve(result.rows[0]);
+          const pollUrlId = req.params.id;
+
+  const queryString = `
+  SELECT * FROM polls
+  WHERE polls.link = $1;
+  `;
+  const values = [pollUrlId];
+
+  db.query(queryString, values)
+    .then((data) => {
+      console.log(data.rows[0]);
+      // return Promise.resolve(result.rows[0]);
+
+      const queryStringAnswers = `
+  SELECT * FROM answers
+  WHERE polls_id = $1;
+  `;
+
+      const valuesAnswer = [data.rows[0].id];
+
+      db.query(queryStringAnswers, valuesAnswer)
+        .then((data) => {
+          console.log(data.rows);
+          // return Promise.resolve(result.rows[0]);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 });
 
 const generateRandomString = () => {
