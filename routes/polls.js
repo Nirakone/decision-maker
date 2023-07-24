@@ -41,7 +41,12 @@ router.post('/create-poll', (req, res) => {
                     if (data) {
                       // send email to user
                       SendEmailToUser();
-                      return "Inserted Successfully";
+
+                      // render data to page
+                      const templateVars = { successMsg: "Poll created successfully", };
+
+                      res.render('Place template view here', templateVars);
+                      return;
                     }
                   })
                   .catch(err => {
