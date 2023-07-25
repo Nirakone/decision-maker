@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Poll</title>
+</head>
+<body>
+<!--- currently the js is in the file. will seperate later. need to make pretty and connect to database---->
+    <h1>Welcome to Voter!</h1>
+	<h3>Create a Custom Poll</h3>
+    <form id="pollForm">
+        <label for="email">Your Email:</label>
+        <input type="email" id="email" required>
+        <br>
+        <label for="question">Poll Question:</label>
+        <input type="text" id="question" required>
+        <br>
+        <label for="option1">Option 1:</label>
+        <input type="text" class="option" required>
+        <br>
+        <label for="option2">Option 2:</label>
+        <input type="text" class="option" required>
+        <br>
+        <button type="button" onclick="addOption()">Add Option</button>
+        <br>
+        <input type="submit" value="Create Poll">
+    </form>
+
+    <script>
+        //add additional option fields
+        function addOption() {
+            const optionContainer = document.createElement('div');
+            optionContainer.innerHTML = `<label for="option${document.querySelectorAll('.option').length + 1}">Option ${document.querySelectorAll('.option').length + 1}:</label>
+            <input type="text" class="option" required>`;
+            document.getElementById('pollForm').insertBefore(optionContainer, document.querySelector('button'));
+        }
+
+        // handle form submission and create the poll
+        document.getElementById('pollForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const question = document.getElementById('question').value;
+            const options = document.querySelectorAll('.option');
+
+            const poll = {
+                email: email,
+                question: question,
+                options: []
+            };
+
+            options.forEach(function(option) {
+                poll.options.push(option.value);
+            });
+
+           });
+    </script>
+</body>
+</html>
