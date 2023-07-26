@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Home Page</title>
+
+
+  <!-- <script src="/vendor/jquery-3.0.0.js"></script>
+  <script defer src="/scripts/app.js"></script> -->
+</head>
+
+<body>
+
+  <h2>Welcome to Voter!</h2>
+  <h3>Please create a poll</h3>
+  <form id="pollForm" method="post" action="/poll">
+        <label for="email">Your Email:</label>
+        <input type="email" id="email" required>
+        <br>
+        <label for="question">Poll Question:</label>
+        <input type="text" id="question" required>
+        <br>
+        <label for="option1">Option 1:</label>
+        <input type="text" class="option" required>
+        <br>
+        <label for="option2">Option 2:</label>
+        <input type="text" class="option" required>
+        <br>
+        <button type="button" onclick="addOption()">Add Option</button>
+        <br>
+        <input type="submit" value="Create Poll">
+    </form>
+
+
+    <script>
+        // add additional option fields
+        function addOption() {
+            const optionContainer = document.createElement('div');
+            optionContainer.innerHTML = `<label for="option${document.querySelectorAll('.option').length + 1}">Option ${document.querySelectorAll('.option').length + 1}:</label>
+            <input type="text" class="option" required>`;
+            document.getElementById('pollForm').insertBefore(optionContainer, document.querySelector('button'));
+        }
+    </script>
+
+</body>
+
+</html>
