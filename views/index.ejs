@@ -4,21 +4,55 @@
 <head>
   <title>Home Page</title>
 
-  <meta charset="UTF-8" >
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" >
 
-  <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" />
-  <link rel="stylesheet" href="/vendor/border-box.css" />
-  <link rel="stylesheet" href="/styles/main.css" />
-  <link rel="stylesheet" href="/styles/layout.css" />
-
-  <script src="/vendor/jquery-3.0.0.js"></script>
-  <script defer src="/scripts/app.js"></script>
+  <!-- <script src="/vendor/jquery-3.0.0.js"></script>
+  <script defer src="/scripts/app.js"></script> -->
 </head>
 
 <body>
-  <h1>Have fun! 🥔</h1>
+  <% if (!pollCreated) { %>
+
+  <h2>Welcome to Voter!</h2>
+  <h3>Please create a poll</h3>
+  <form id="pollForm" method="post" action="/poll">
+    <label for="email">Your Email:</label>
+    <input type="email" id="email" name="email" required>
+    <br>
+    <label for="question">Poll Question:</label>
+    <input type="text" id="question" name="question" required>
+    <br>
+    <label for="option1">Option 1:</label>
+    <input type="text" class="option" name="options" required>
+    <br>
+    <label for="option2">Option 2:</label>
+    <input type="text" class="option" name="options" required>
+    <br>
+    <button type="button" onclick="addOption()">Add Option</button>
+    <br>
+    <input type="submit" value="Create Poll">
+</form>
+<% } else { %>
+<h1>Poll Created Successfully!</h1>
+<h2>Poll Question:</h2>
+<p><%= poll.question %></p>
+<h2>Poll Options:</h2>
+<ul>
+    <% poll.options.forEach(function(option) { %>
+        <li><%= option %></li>
+    <% }); %>
+</ul>
+<% } %>
+
+<script>
+    // Function to add additional option fields
+    function addOption() {
+        const optionContainer = document.createElement('div');
+        optionContainer.innerHTML = `<label for="option${document.querySelectorAll('.option').length + 1}">Option ${document.querySelectorAll('.option').length + 1}:</label>
+        <input type="text" class="option" name="options" required>`;
+        document.getElementById('pollForm').insertBefore(optionContainer, document.querySelector('button'));
+    }
+</script>
+
 </body>
 
 </html>
