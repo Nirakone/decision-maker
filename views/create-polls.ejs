@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<%- include('partials/navBar') %>
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
-  <title>DecisionMaker</title>
-</head>
+  <body>
 
-<body>
-  <%- include('partials/navBar') %>
     <h1>Create a Poll</h1>
     <form action="/api/polls/create-poll" method="POST" style="width: 60%">
 
@@ -75,6 +67,6 @@
       });
     </script>
 
-</body>
+  </body>
 
 </html>
