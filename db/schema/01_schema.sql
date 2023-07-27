@@ -4,7 +4,6 @@ DROP Table if exist choices;
 DROP Table if exist answers;
 
 
-
 CREATE TABLE users (
  id SERIAL PRIMARY KEY NOT NULL,
  email VARCHAR(100) NOT NULL
@@ -25,8 +24,8 @@ CREATE TABLE users (
   );
 
  CREATE TABLE answers (
- id SERIAL PRIMARY KEY NOT NULL, 
- polls_id INTEGER NOT NULL REFERENCES polls(id) ON DELETE CASCADE, 
- users_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, 
+ id SERIAL PRIMARY KEY NOT NULL,
+ polls_id INTEGER NOT NULL REFERENCES polls(id) ON DELETE CASCADE,
+ users_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
  polls_answer VARCHAR(250) NOT NULL
  );
