@@ -126,13 +126,6 @@ router.get("/:id", (req, res) => {
 
 // Route to post answers
 router.post('/post-answer', (req, res) => {
-  // Query to insert user to table
-  const queryOne = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
-
-  const valuesOne = [req.body.email];
-
-  db.query(queryOne, valuesOne)
-    .then(data => {
       let user_id = data.rows[0].id;
 
       // Query to insert answer to table
@@ -157,13 +150,6 @@ router.post('/post-answer', (req, res) => {
             .status(500)
             .json({ error: err.message });
         });
-
-    })
-    .catch(err => {
-      res
-        .status(500)
-        .json({ error: err.message });
-    });
 });
 
 // Route to get results by id
