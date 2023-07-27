@@ -7,7 +7,7 @@ const express = require('express');
 const morgan = require('morgan');
 
 // const PORT = process.env.PORT || 8080;
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -29,17 +29,11 @@ app.use(express.static('public'));
 
 // Separated Routes for each Resource
 // Note: Feel free to replace the example routes below with your own
-const userApiRoutes = require('./routes/users-api');
-const widgetApiRoutes = require('./routes/widgets-api');
-const usersRoutes = require('./routes/users');
 const pollsRoutes = require('./routes/polls');
 
 // Mount all resource routes
 // Note: Feel free to replace the example routes below with your own
 // Note: Endpoints that return data (eg. JSON) usually start with `/api`
-app.use('/api/users', userApiRoutes);
-app.use('/api/widgets', widgetApiRoutes);
-app.use('/users', usersRoutes);
 app.use('/api/polls', pollsRoutes);
 // Note: mount other resources here, using the same pattern above
 
@@ -48,7 +42,7 @@ app.use('/api/polls', pollsRoutes);
 // Separate them into separate routes files (see above).
 
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index',{ successMsg: ""});
 });
 
 app.listen(PORT, () => {
