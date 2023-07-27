@@ -1,41 +1,56 @@
-<h1>Create a Poll</h1>
-<form action="/api/polls/create-poll" method="POST" style="width: 60%">
+<!DOCTYPE html>
+<html lang="en">
 
-  <div class="row">
-    <div class="col-sm-6">
-      <label for="title"><b>Title:</b></label>
-      <input type="text" id="title" name="title" class="form-control" placeholder="Enter title of poll" required>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-      <label for="email"><b>Email:</b></label>
-      <input type="text" id="email" name="email" class="form-control"
-        placeholder="Enter email address you want pool link sent to" required>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
+  <title>DecisionMaker</title>
+</head>
 
-      <label for="question"><b>Question:</b></label>
-      <textarea type="text" id="question" name="question" class="form-control" placeholder="Enter question"
-        required></textarea>
-      <br>
-      <div>
-        <label for="options"><b>Create Options: </b></label>
-        <button id="addOpt" class="btn btn-success">+</button>
-      </div><br>
-      <button type="submit" class="btn btn-success">Create Poll</button>
-      <br>
-      <b>
-        <%= successMsg %>
-      </b>
-    </div>
-    <div class="col-sm-6">
-      <div id="optionsContainer">
-      </div>
-    </div>
-</form>
+<body>
+  <%- include('partials/navBar') %>
+    <h1>Create a Poll</h1>
+    <form action="/api/polls/create-poll" method="POST" style="width: 60%">
 
-<script>
-  $(document).ready(function() {
-    let optionNo = 0;
+      <div class="row">
+        <div class="col-sm-6">
+          <label for="title"><b>Title:</b></label>
+          <input type="text" id="title" name="title" class="form-control" placeholder="Enter title of poll" required>
 
-    const setOptionBox = () => {
-      const optionAppend = $(`
+          <label for="email"><b>Email:</b></label>
+          <input type="text" id="email" name="email" class="form-control"
+            placeholder="Enter email address you want pool link sent to" required>
+
+          <label for="question"><b>Question:</b></label>
+          <textarea type="text" id="question" name="question" class="form-control" placeholder="Enter question"
+            required></textarea>
+          <br>
+          <div>
+            <label for="options"><b>Create Options: </b></label>
+            <button id="addOpt" class="btn btn-success">+</button>
+          </div><br>
+          <button type="submit" class="btn btn-success">Create Poll</button>
+          <br>
+          <b>
+            <%= successMsg %>
+          </b>
+        </div>
+        <div class="col-sm-6">
+          <div id="optionsContainer">
+          </div>
+        </div>
+    </form>
+
+    <script>
+      $(document).ready(function() {
+        let optionNo = 0;
+
+        const setOptionBox = () => {
+          const optionAppend = $(`
         <div class="option-box">
           <label for="option-${optionNo}"><b>Option ${optionNo + 1}:</b></label>
           <div class="row">
@@ -48,14 +63,18 @@
         </div>
         </div>
       `);
-      $('#optionsContainer').append(optionAppend);
-      optionNo++;
-    };
+          $('#optionsContainer').append(optionAppend);
+          optionNo++;
+        };
 
-    $('#addOpt').on('click', setOptionBox);
+        $('#addOpt').on('click', setOptionBox);
 
-    $('#optionsContainer').on('click', '.removeBtn', function() {
-      $(this).parent().remove();
-    });
-  });
-</script>
+        $('#optionsContainer').on('click', '.removeBtn', function() {
+          $(this).parent().remove();
+        });
+      });
+    </script>
+
+</body>
+
+</html>
