@@ -5,15 +5,12 @@ const db = require('../db/connection');
 // Route to create a poll
 router.post('/create-poll', (req, res) => {
   const pollsBaseLink = "http://localhost:3000/"
-
   // query to insert user
   const queryCreatePoll = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
 
   const valuesCreatePoll = [req.body.email];
-
   db.query(queryCreatePoll, valuesCreatePoll)
     .then(dataone => {
-
       if (dataone) {
         let user_id = dataone.rows[0].id;
         const generateUrl = generateRandomString();
@@ -26,10 +23,8 @@ router.post('/create-poll', (req, res) => {
 
         db.query(queryTwo, valuesTwo)
           .then(datatwo => {
-
             if (datatwo) {
-              const optionsArray = ["Dog", "Cat", "Monkey"];
-              // let optionsArray = req.body.options;
+              const optionsArray = req.body.options;
               const poll_id = datatwo.rows[0].id;
 
               // loop through the options array
@@ -56,15 +51,14 @@ router.post('/create-poll', (req, res) => {
               SendEmailToUser(fullLinkUrl);
 
               // render success message to view
-              const templateVars = { successMsg: "Successfully", };
+              const templateVars = { successMsg: "Poll was created successfully", };
 
-              console.log(templateVars);
-
-              // res.render('Place template view here', templateVars);
+              res.render('index', templateVars);
               return;
             }
           })
           .catch(err => {
+            console.log("##8");
             res
               .status(500)
               .json({ error: err.message });
@@ -163,7 +157,7 @@ router.post('/post-answer', (req, res) => {
 });
 
 // Route to get results by id
-router.get("/get-results/:id", (req, res) => {
+router.get("/get-polls/:id", (req, res) => {
   const pollUrlId = req.params.id;
 
   // query to select polls by id
@@ -200,7 +194,6 @@ router.get("/get-results/:id", (req, res) => {
                   const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, pollAnswers: datatwo.rows, successMsg: "Successful" };
 
                   console.log(templateVars);
-
                   // res.render('Place template view here', templateVars);
                   return;
                 })
