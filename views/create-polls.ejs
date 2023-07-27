@@ -20,7 +20,11 @@
       </div><br>
       <button type="submit" class="btn btn-success">Create Poll</button>
       <br>
-      <b><%= successMsg %></b>
+      <% if (successMsg==="Successfully" ) { %>
+        <span style="color: green;">
+          Email sent to user(s) was successful
+        </span>
+        <% } %>
     </div>
     <div class="col-sm-6">
       <div id="optionsContainer">
