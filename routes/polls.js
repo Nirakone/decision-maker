@@ -128,7 +128,7 @@ router.get("/user/:id", (req, res) => {
 // Route to post answers
 router.post('/:link/post-answer', (req, res) => {
   // let user_id = data.rows[0].id;
-  let user_id = 76;
+  let user_id = 1;
   let link = req.params.link;
 
   const queryPostLink = `SELECT id FROM polls WHERE link = $1`;
@@ -269,12 +269,61 @@ const generateRandomString = () => {
   return getRandChar;
 };
 
-// function to send email
+// function to send email  ----RAVNEET 
 const SendEmailToUser = (pollLinkUrl, emailId) => {
   // implement sending email function here
   console.log("pollLink url is: " + pollLinkUrl);
   console.log("emailId is: " + emailId);
 };
+
+// Route to get poll results by id
+router.get("/polls-answers/:id", (req, res) => {
+  const pollUrlId = req.params.id;
+
+  // query to select polls by id
+  const queryString = `
+    SELECT * FROM polls
+    WHERE polls.link = $1;
+  `;
+  const values = [pollUrlId];
+
+  db.query(queryString, values)
+    .then((data) => {
+      if (data) {
+        const queryStringChoices = `
+          SELECT choices.polls_options, COUNT(answers.polls_answer) AS votes
+          FROM choices
+          LEFT JOIN answers ON choices.polls_id = answers.polls_id AND choices.polls_options = answers.polls_answer
+          WHERE choices.polls_id = $1
+          GROUP BY choices.polls_options;
+        `;
+
+        const valuesChoices = [data.rows[0].id];
+
+        db.query(queryStringChoices, valuesChoices)
+          .then((dataone) => {
+            if (dataone) {
+              // render data to view
+              const templateVars = {
+                pollTitle: data.rows[0].title,
+                pollQuestion: data.rows[0].question,
+                pollChoices: dataone.rows,
+              };
+
+              res.render('poll-answers', templateVars);
+              return;
+            }
+          })
+          .catch((err) => {
+            console.log(err.message);
+          });
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
 
 module.exports = router;
 

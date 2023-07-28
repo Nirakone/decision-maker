@@ -1,0 +1,21 @@
+<!-- poll-answers.ejs
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Poll Results</title>
+  <!-- Add your CSS and JS links here -->
+</head>
+
+<body>
+  <h1>Poll Results</h1>
+  <h2><%= pollTitle %></h2>
+  <p><%= pollQuestion %></p>
+  <ul>
+    <% for (let i = 0; i < pollChoices.length; i++) { %>
+      <li><%= pollChoices[i].polls_options %> - <%= pollChoices[i].votes %> Votes</li>
+    <% } %>
+  </ul>
+</body>
+
+</html> -->

@@ -15,7 +15,7 @@ console.log(process.env.MAILGUN_API_URL);
   mg.messages
     .create(process.env.MAILGUN_DOMAIN, {
       from: process.env.MAILGUN_SENDER_EMAIL,
-      to: ["ravneet.virk@gmail.com"],
+      to: ["ravneet.virk@gmail.com, "],
       subject: "Hello",
       text: "Testing some Mailgun awesomeness!",
       html: "<h1>Testing some Mailgun awesomeness!</h1>",
