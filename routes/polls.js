@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/connection');
 
+const pollsBaseLink = "http://localhost:3000/";
+let generateUrl = "";
+
 // Route to create a poll
 router.post('/create-poll', (req, res) => {
-  const pollsBaseLink = "http://localhost:3000/"
   // query to insert user
   const queryCreatePoll = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
 
@@ -13,8 +15,8 @@ router.post('/create-poll', (req, res) => {
     .then(dataone => {
       if (dataone) {
         let user_id = dataone.rows[0].id;
-        const generateUrl = generateRandomString();
-        const fullLinkUrl = pollsBaseLink + generateUrl;
+        generateUrl = generateRandomString();
+        const fullLinkUrl = pollsBaseLink + "admin/" + generateUrl;
 
         // query to insert polls after user is created
         const queryTwo = `INSERT INTO polls (title, question, link, users_id) VALUES ( $1, $2, $3, $4 ) RETURNING id`;
@@ -47,13 +49,21 @@ router.post('/create-poll', (req, res) => {
                   });
               }
 
-              // send email to user
-              SendEmailToUser(fullLinkUrl);
-
               // render success message to view
-              const templateVars = { successMsg: "Poll was created successfully", };
+              const templateVars = {
+                successMsg: "Poll was created successfully",
+                pollTitle: req.body.title,
+                pollQuestion: req.body.question,
+                pollOptions: req.body.options
+              };
 
-              res.render('index', templateVars);
+              console.log(templateVars);
+
+              // send email to user
+              SendEmailToUser(fullLinkUrl, req.body.email);
+
+              res.render('poll-send', templateVars);
+              // res.render('index', templateVars);
               return;
             }
           })
@@ -73,8 +83,9 @@ router.post('/create-poll', (req, res) => {
 });
 
 // Route to get polls by id link
-router.get("/:id", (req, res) => {
+router.get("/user/:id", (req, res) => {
   const pollUrlId = req.params.id;
+  
 
   // Query get select by link id
   const queryString = `
@@ -97,11 +108,11 @@ router.get("/:id", (req, res) => {
         db.query(queryStringChoices, valuesChoices)
           .then((dataone) => {
             // render data and success message to view
-            const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, successMsg: "Successfully" };
+            const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, link: data.rows[0].link, successMsg: "Successfully" };
 
             console.log(templateVars);
 
-            // res.render('Place template view here', templateVars);
+            res.render('voting', templateVars);
             return;
           })
           .catch((err) => {
@@ -115,45 +126,40 @@ router.get("/:id", (req, res) => {
 });
 
 // Route to post answers
-router.post('/post-answer', (req, res) => {
-  // Query to insert user to table
-  const queryOne = `INSERT INTO users (email) VALUES ( $1 ) RETURNING id`;
+router.post('/:link/post-answer', (req, res) => {
+  // let user_id = data.rows[0].id;
+  let user_id = 76;
+  let link = req.params.link;
 
-  const valuesOne = [req.body.email];
+  const queryPostLink = `SELECT id FROM polls WHERE link = $1`;
 
-  db.query(queryOne, valuesOne)
+  db.query(queryPostLink, [link])
     .then(data => {
-      let user_id = data.rows[0].id;
-
       // Query to insert answer to table
       const queryOne = `INSERT INTO answers (polls_id, users_id, polls_answer) VALUES ( $1, $2, $3 )`;
 
-      const valuesOne = [req.body.polls_id, user_id, req.body.choice_id];
+      const valuesOne = [data.rows[0].id, user_id, req.body.answers];
 
-      db.query(queryOne, valuesOne)
-        .then(dataOne => {
-          if (dataOne) {
-            // render data and success message to view
-            const templateVars = { successMsg: "Successfully" };
+      return db.query(queryOne, valuesOne)
+        
+    })
 
-            console.log(templateVars);
+    .then(dataOne => {
+      if (dataOne) {
+        // render data and success message to view
 
-            // res.render('Place template view here', templateVars);
-            return;
-          }
-        })
-        .catch(err => {
-          res
-            .status(500)
-            .json({ error: err.message });
-        });
-
+        // redirect to result page
+        res.redirect("back");
+        // res.render('Place template view here', templateVars);
+        return;
+      }
     })
     .catch(err => {
       res
         .status(500)
         .json({ error: err.message });
     });
+
 });
 
 // Route to get results by id
@@ -191,10 +197,9 @@ router.get("/get-polls/:id", (req, res) => {
               db.query(queryStringAnswers, valuesAnswer)
                 .then((datatwo) => {
                   // render data and success message to view
-                  const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, pollAnswers: datatwo.rows, successMsg: "Successful" };
+                  const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, pollAnswers: datatwo.rows, pollLink: data.rows[0].link, successMsg: "Successful" };
 
-                  console.log(templateVars);
-                  // res.render('Place template view here', templateVars);
+                  res.render('voting', templateVars);
                   return;
                 })
                 .catch((err) => {
@@ -210,6 +215,40 @@ router.get("/get-polls/:id", (req, res) => {
     .catch((err) => {
       console.log(err.message);
     });
+});
+
+// Route to send email to user for poll answers
+router.post('/post-email', (req, res) => {
+  const fullLinkUrl = pollsBaseLink + "user/" + generateUrl;
+  const emailAddresses = req.body.emails;
+
+  for (let i = 0; i < emailAddresses.length; i++) {
+
+    const queryOne = `INSERT INTO users (email) VALUES ( $1 )`;
+
+    const valuesOne = [emailAddresses[i]];
+
+    db.query(queryOne, valuesOne)
+      .then(dataOne => {
+        if (dataOne) {
+          // send email to user
+          SendEmailToUser(fullLinkUrl, emailAddresses[i]);
+        }
+      })
+      .catch(err => {
+        res
+          .status(500)
+          .json({ error: err.message });
+      });
+  }
+
+  // render data and success message to view
+  const templateVars = { successMsg: "Successfully" };
+
+  console.log(templateVars);
+
+  res.render('index', templateVars);
+  return;
 });
 
 // function to generate random string
@@ -231,8 +270,10 @@ const generateRandomString = () => {
 };
 
 // function to send email
-const SendEmailToUser = (pollLinkUrl) => {
+const SendEmailToUser = (pollLinkUrl, emailId) => {
   // implement sending email function here
+  console.log("pollLink url is: " + pollLinkUrl);
+  console.log("emailId is: " + emailId);
 };
 
 module.exports = router;

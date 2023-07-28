@@ -33,7 +33,7 @@ const userApiRoutes = require("./routes/users-api");
 const widgetApiRoutes = require("./routes/widgets-api");
 const usersRoutes = require("./routes/users");
 const pollsRoutes = require("./routes/polls");
-const sendemail = require("./mailguntest");
+// const sendemail = require("./mailguntest");
 
 // Mount all resource routes
 // Note: Feel free to replace the example routes below with your own
