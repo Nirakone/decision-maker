@@ -83,8 +83,9 @@ router.post('/create-poll', (req, res) => {
 });
 
 // Route to get polls by id link
-router.get("/:id", (req, res) => {
+router.get("/user/:id", (req, res) => {
   const pollUrlId = req.params.id;
+  
 
   // Query get select by link id
   const queryString = `
@@ -107,11 +108,11 @@ router.get("/:id", (req, res) => {
         db.query(queryStringChoices, valuesChoices)
           .then((dataone) => {
             // render data and success message to view
-            const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, successMsg: "Successfully" };
+            const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, link: data.rows[0].link, successMsg: "Successfully" };
 
             console.log(templateVars);
 
-            // res.render('Place template view here', templateVars);
+            res.render('voting', templateVars);
             return;
           })
           .catch((err) => {
@@ -125,31 +126,40 @@ router.get("/:id", (req, res) => {
 });
 
 // Route to post answers
-router.post('/post-answer', (req, res) => {
-      let user_id = data.rows[0].id;
+router.post('/:link/post-answer', (req, res) => {
+  // let user_id = data.rows[0].id;
+  let user_id = 76;
+  let link = req.params.link;
 
+  const queryPostLink = `SELECT id FROM polls WHERE link = $1`;
+
+  db.query(queryPostLink, [link])
+    .then(data => {
       // Query to insert answer to table
       const queryOne = `INSERT INTO answers (polls_id, users_id, polls_answer) VALUES ( $1, $2, $3 )`;
 
-      const valuesOne = [req.body.polls_id, user_id, req.body.choice_id];
+      const valuesOne = [data.rows[0].id, user_id, req.body.answers];
 
-      db.query(queryOne, valuesOne)
-        .then(dataOne => {
-          if (dataOne) {
-            // render data and success message to view
-            const templateVars = { successMsg: "Successfully" };
+      return db.query(queryOne, valuesOne)
+        
+    })
 
-            console.log(templateVars);
+    .then(dataOne => {
+      if (dataOne) {
+        // render data and success message to view
 
-            // res.render('Place template view here', templateVars);
-            return;
-          }
-        })
-        .catch(err => {
-          res
-            .status(500)
-            .json({ error: err.message });
-        });
+        // redirect to result page
+        res.redirect("back");
+        // res.render('Place template view here', templateVars);
+        return;
+      }
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ error: err.message });
+    });
+
 });
 
 // Route to get results by id
@@ -187,10 +197,9 @@ router.get("/get-polls/:id", (req, res) => {
               db.query(queryStringAnswers, valuesAnswer)
                 .then((datatwo) => {
                   // render data and success message to view
-                  const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, pollAnswers: datatwo.rows, successMsg: "Successful" };
+                  const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, pollAnswers: datatwo.rows, pollLink: data.rows[0].link, successMsg: "Successful" };
 
-                  console.log(templateVars);
-                  // res.render('Place template view here', templateVars);
+                  res.render('voting', templateVars);
                   return;
                 })
                 .catch((err) => {

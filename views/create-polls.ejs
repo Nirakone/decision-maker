@@ -1,4 +1,5 @@
 <h1>Create a Poll</h1>
+<!-- <%- include('partials/navBar') %> -->
 <form action="/api/polls/create-poll" method="POST" style="width: 60%">
 
   <div class="row">
@@ -50,14 +51,18 @@
         </div>
         </div>
       `);
-      $('#optionsContainer').append(optionAppend);
-      optionNo++;
-    };
+          $('#optionsContainer').append(optionAppend);
+          optionNo++;
+        };
 
-    $('#addOpt').on('click', setOptionBox);
+        $('#addOpt').on('click', setOptionBox);
 
-    $('#optionsContainer').on('click', '.removeBtn', function() {
-      $(this).parent().remove();
-    });
-  });
-</script>
+        $('#optionsContainer').on('click', '.removeBtn', function() {
+          $(this).parent().remove();
+        });
+      });
+    </script>
+
+  </body>
+
+</html>

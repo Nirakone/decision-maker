@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Send Poll Page</title>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" />
+  <link rel="stylesheet" href="/vendor/border-box.css" />
+  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="/styles/layout.css" />
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
+
+  <script src="/vendor/jquery-3.0.0.js"></script>
+  <script defer src="/scripts/app.js"></script>
+</head>
+
+<!-- <%- include('partials/navBar') %> -->
+
+  <body>
+    <br>
+    <h1>Voting</h1>
+    <form action="/api/polls/<%= link %>/post-answer" method="POST" style="width: 50%">
+
+      <div class="row">
+        <div class="col-sm-12">
+          <label for="title"><b>Title:</b></label>
+          <input type="text" id="title" name="title" class="form-control" placeholder="<%= pollTitle %>" disabled> <br>
+
+          <label for="question"><b>Question:</b></label>
+          <textarea type="text" id="question" name="question" class="form-control"
+            placeholder="<%= pollQuestion %>" disabled></textarea>
+          <br>
+
+          <label for="selectAnswer"><b>Select your answer:</b></label> <br>
+          <div class="col-sm-6">
+            <% pollChoices.forEach(item => { %>
+              <input type="radio" name="answers" value="<%= item.polls_options %>" />
+              <label><%= item.polls_options %></label>
+            <% }); %>
+            <!-- <div id="radioButtonContainer"> -->
+            </div>
+          </div>
+
+          <br>
+          <button type="submit" class="btn btn-success">Submit Answer</button>
+          <br>
+        </div>
+    </form>
+
+    <!-- <script>
+      $(document).ready(function() {
+
+        let options = ["Movie", "Dinner", "Match", "Game", "Swimming", "home party"];
+
+        for (option of options) {
+          const optionAppend = $(`
+          <input type="radio" id="`+ option + `" name="answer" value="` + option + `">
+          <label for="`+ option + `">` + option + `</label> <br>
+        `);
+
+          $('#radioButtonContainer').append(optionAppend);
+        }
+
+      });
+    </script> -->
+  </body>
+
+</html>
