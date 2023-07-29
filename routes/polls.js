@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/connection');
+const sendemail = require('../mailguntest.js');
 
-const pollsBaseLink = "http://localhost:3000/";
+const pollsBaseLink = "http://localhost:3001/api/polls/";
 let generateUrl = "";
 
 // Route to create a poll
@@ -16,7 +17,7 @@ router.post('/create-poll', (req, res) => {
       if (dataone) {
         let user_id = dataone.rows[0].id;
         generateUrl = generateRandomString();
-        const fullLinkUrl = pollsBaseLink + "admin/" + generateUrl;
+        const fullLinkUrl = pollsBaseLink + "polls-answers/" + generateUrl;
 
         // query to insert polls after user is created
         const queryTwo = `INSERT INTO polls (title, question, link, users_id) VALUES ( $1, $2, $3, $4 ) RETURNING id`;
@@ -57,8 +58,6 @@ router.post('/create-poll', (req, res) => {
                 pollOptions: req.body.options
               };
 
-              console.log(templateVars);
-
               // send email to user
               SendEmailToUser(fullLinkUrl, req.body.email);
 
@@ -68,7 +67,6 @@ router.post('/create-poll', (req, res) => {
             }
           })
           .catch(err => {
-            console.log("##8");
             res
               .status(500)
               .json({ error: err.message });
@@ -85,7 +83,7 @@ router.post('/create-poll', (req, res) => {
 // Route to get polls by id link
 router.get("/user/:id", (req, res) => {
   const pollUrlId = req.params.id;
-  
+
 
   // Query get select by link id
   const queryString = `
@@ -109,8 +107,6 @@ router.get("/user/:id", (req, res) => {
           .then((dataone) => {
             // render data and success message to view
             const templateVars = { pollTitle: data.rows[0].title, pollQuestion: data.rows[0].question, pollChoices: dataone.rows, link: data.rows[0].link, successMsg: "Successfully" };
-
-            console.log(templateVars);
 
             res.render('voting', templateVars);
             return;
@@ -141,7 +137,7 @@ router.post('/:link/post-answer', (req, res) => {
       const valuesOne = [data.rows[0].id, user_id, req.body.answers];
 
       return db.query(queryOne, valuesOne)
-        
+
     })
 
     .then(dataOne => {
@@ -245,36 +241,9 @@ router.post('/post-email', (req, res) => {
   // render data and success message to view
   const templateVars = { successMsg: "Successfully" };
 
-  console.log(templateVars);
-
   res.render('index', templateVars);
   return;
 });
-
-// function to generate random string
-const generateRandomString = () => {
-  let getRandChar = '';
-  let randArray = [];
-  let charForRand = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-  const maxLength = 9;
-
-  for (let i = 0; i < maxLength; i++) {
-    let genRandomChar = Math.floor(Math.random() * charForRand.length);
-
-    getRandChar = getRandChar + charForRand.charAt(genRandomChar);
-
-    randArray.push(getRandChar);
-  }
-
-  return getRandChar;
-};
-
-// function to send email  ----RAVNEET 
-const SendEmailToUser = (pollLinkUrl, emailId) => {
-  // implement sending email function here
-  console.log("pollLink url is: " + pollLinkUrl);
-  console.log("emailId is: " + emailId);
-};
 
 // Route to get poll results by id
 router.get("/polls-answers/:id", (req, res) => {
@@ -323,6 +292,30 @@ router.get("/polls-answers/:id", (req, res) => {
       console.log(err.message);
     });
 });
+
+// function to generate random string
+const generateRandomString = () => {
+  let getRandChar = '';
+  let randArray = [];
+  let charForRand = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+  const maxLength = 9;
+
+  for (let i = 0; i < maxLength; i++) {
+    let genRandomChar = Math.floor(Math.random() * charForRand.length);
+
+    getRandChar = getRandChar + charForRand.charAt(genRandomChar);
+
+    randArray.push(getRandChar);
+  }
+
+  return getRandChar;
+};
+
+// function to send email  ----RAVNEET
+const SendEmailToUser = (pollLinkUrl, emailId) => {
+  // implement sending email function here
+  sendemail(pollLinkUrl, emailId);
+};
 
 
 module.exports = router;
