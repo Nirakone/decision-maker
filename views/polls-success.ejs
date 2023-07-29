@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Poll Result Page</title>
+  <title>Poll Success Page</title>
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,21 +21,7 @@
 </head>
 
 <body>
-  <h1>Poll Results</h1>
-  <h2><%= pollTitle %></h2>
-  <p><%= pollQuestion %></p>
-  <ul>
-    <% for (let i = 0; i < pollChoices.length; i++) { %>
-      <li>
-        <%= pollChoices[i].polls_options %> - <%= pollChoices[i].votes %> 
-        <% if (pollChoices[i].votes > 1) { %>
-          Votes
-        <% } else { %>
-          Vote
-        <% } %>
-      </li>
-    <% } %>
-  </ul>
+  <h1>Thank You! Answer has been saved</h1>
 </body>
 
 </html>
