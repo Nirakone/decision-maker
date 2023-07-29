@@ -11,6 +11,16 @@ The following steps are only for _one_ of the group members to perform.
 4. Add your team members as collaborators to the project so that they can push to this repo
 5. Let your team members know the repo URL so that they use the same repo (they should _not_ create a copy/fork of this repo since that will add additional workflow complexity to the project)
 
+## Screenshots of app
+
+!["Screenshot of create a poll page"](createpoll2.jpg)
+!["Screenshot of created poll page"](createpoll3.jpg)
+!["Screenshot of sending poll to voters"](poll5.jpg)
+!["Screenshot of voting page"](voting.jpg)
+!["Screenshot of thank you page"](thankyou.jpg)
+!["Screenshot of results page"](results1.jpg)
+
+
 
 ## Getting Started
 
