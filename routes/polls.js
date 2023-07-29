@@ -124,7 +124,7 @@ router.get("/user/:id", (req, res) => {
 // Route to post answers
 router.post('/:link/post-answer', (req, res) => {
   // let user_id = data.rows[0].id;
-  let user_id = 1;
+  let user_id = 145;
   let link = req.params.link;
 
   const queryPostLink = `SELECT id FROM polls WHERE link = $1`;
@@ -145,8 +145,8 @@ router.post('/:link/post-answer', (req, res) => {
         // render data and success message to view
 
         // redirect to result page
-        res.redirect("back");
-        // res.render('Place template view here', templateVars);
+        // res.redirect("back");
+        res.render('polls-success');
         return;
       }
     })

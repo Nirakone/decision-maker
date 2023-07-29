@@ -6,10 +6,10 @@ function sendemail(pollLinkUrl, emailId) {
 
   const mg = mailgun.client({
     username: "api",
-    key: MAILGUN_API_KEY,
+    key: process.env.MAILGUN_API_KEY,
   });
 
-    mg.messages
+mg.messages
     .create(process.env.MAILGUN_DOMAIN, {
       from: process.env.MAILGUN_SENDER_EMAIL,
       to: [emailId],
